@@ -62,10 +62,6 @@ lvgl:
   pages:
     - id: main_page
       widgets:
-        - label:
-            text: "6:07"
-            align: CENTER
-            text_font: digital7font
         - obj:
             width: 100%
             height: 100%
@@ -74,6 +70,11 @@ lvgl:
             border_width: 1
             border_color: white
             radius: 0
+        - label:
+            text: "6:07"
+            align: CENTER
+            text_font: digital7font
+
  
 
     
