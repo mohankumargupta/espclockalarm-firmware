@@ -6,6 +6,8 @@ substitutions:
 
 esphome:
   name: mervclock
+  includes:
+    - merv.h
 
 esp32:
   board: esp32-s3-devkitm-1
@@ -17,9 +19,21 @@ psram:
   speed: 120MHz
 
 logger:
+  hardware_uart: UART0
 
 wifi:
   ssid: "Wokwi-GUEST"
+
+interval:
+  - interval: 30s
+    then:
+      - if:
+          condition:
+            wifi.connected
+          then:
+            - logger.log: "WiFi is connected!"
+          else:
+            - logger.log: "WiFi is disconnected!"
 
 api:
 
@@ -31,6 +45,33 @@ font:
   - file: "digital-7.ttf"
     id: digital7font
     size: 48
+
+time:
+  - platform: sntp
+    id: sntp_time
+    timezone: "UTC"
+
+text_sensor:
+  - platform: template
+    id: melbourne_clock
+    update_interval: 15s
+    on_value: 
+      then:
+        - lvgl.label.update:
+             id: maintime
+             text:
+               format: "%s"
+               args: [ 'x.c_str()' ]    
+    lambda: |-
+      auto now = id(sntp_time).now();
+      if (!now.is_valid()) return {"--:--"};
+
+      return {
+        format_timezone_time(
+          now.timestamp,
+          "AEST-10AEDT,M10.1.0/2,M4.1.0/3"
+        )
+      };
 
 display:
   - platform: mipi_spi
@@ -71,10 +112,9 @@ lvgl:
             border_color: white
             radius: 0
         - label:
-            text: "6:07"
+            id: maintime
+            text: "--:--"
             align: CENTER
             text_font: digital7font
 
  
-
-    
